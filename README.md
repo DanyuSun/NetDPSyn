@@ -6,11 +6,9 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
 
 ## Experimental setup
 
-1. Download the raw datasets from [here](https://drive.google.com/drive/folders/1MHRJxLhnJWZln8XBCon9UrN_EwVj14BE). There is also a ton.csv dataset in `temp_data/raw_data`. Move this folder to `../../` (one level above `Net-PrivSyn`, assuming you check out this parent repo).
+1. Download the raw datasets from [here](https://drive.google.com/drive/folders/1MHRJxLhnJWZln8XBCon9UrN_EwVj14BE). And move 5 datasets to the folder `temp_data/raw_data/`.
 
-2. Install the required packages if you haven't done so, including  `numpy, pandas, scipy, networkx, scikit-learn, matplotlib`.
-
-3. If you're using VSCode, you can change `.vscode/launch.json` to select which code to run under `program`. It also has the `args` defined.
+2. Install the required packages if you haven't done, including  `numpy, pandas, scipy, networkx, scikit-learn, matplotlib`.
 
 ## Usage
 
