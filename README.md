@@ -21,8 +21,6 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
                         └── dc.csv
                         └── ton.csv
                         └── ugr16.csv
-                                         
-                   └── ...
            └── exp
            └── ...
 
