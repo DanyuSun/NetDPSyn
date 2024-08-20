@@ -12,8 +12,11 @@ import numpy as np
 import pandas as pd
 
 import sys
-#sys.path.append('/home/dsun/dpsyn_clean_newest/')
-sys.path.append('/Users/sdy/Desktop/dpsyn_clean_newest/')
+ 
+current_dir = os.getcwd()
+parent_dir = os.path.abspath(os.path.join(current_dir, "../"))
+sys.path.append(parent_dir)
+
 import config_dpsyn
 from lib_dataset.dataset import Dataset
 from lib_dataset.domain import Domain
@@ -30,7 +33,6 @@ class PreprocessNetwork:
         self.logger = logging.getLogger("preprocess a network dataset")
 
         self.shape = []
-        #self.gaussian_params = {}  # To store Gaussian distribution parameters
        
         for path in config_dpsyn.ALL_PATH:
             if not os.path.exists(path):
@@ -45,7 +47,6 @@ class PreprocessNetwork:
 
     def load_data(self, csv_filename):
         self.logger.info("loading data")
-        #ZL: need to copy all datasets to raw_data_path
         with open(config_dpsyn.RAW_DATA_PATH + csv_filename, 'r') as file:
             self.df = pd.read_csv(config_dpsyn.RAW_DATA_PATH + csv_filename, low_memory=False)
             for column in self.df.columns:
@@ -55,7 +56,7 @@ class PreprocessNetwork:
             self.set_data_types()
         
     def set_data_types(self):
-        #deal with large timestamp, pkt and byt
+        # deal with large timestamp, pkt and byt
         for column in self.df.columns:
             if column in self.field_types and self.field_types[column] in ['timestamp', 'binned_integer', 'int-exponential']:
                 self.df[column] = self.df[column].astype('uint64')
@@ -93,10 +94,6 @@ class PreprocessNetwork:
                 self.mappings[column] = dict(zip(le.classes_, le.transform(le.classes_)))
                 self.shape.append(len(le.classes_))
             elif self.field_types[column] == 'binned-ip':
-                #v1: binning without mapping
-                #self.df[column] = self.bin_ip(self.df[column], self.bin_sizes[column])
-                #self.shape.append(self.df[column].max() + 1)
-                #v2: binning with mapping, smaller domain size
                 binned_values= self.bin_ip(self.df[column], self.bin_sizes[column])
                 le = LabelEncoder()
                 self.df[column] = le.fit_transform(binned_values)
@@ -105,10 +102,6 @@ class PreprocessNetwork:
             elif self.field_types[column] == 'binned-port':
                 threshold = self.bin_sizes[column]
                 bin_size = self.bin_sizes["port_bin_size"]
-                #v1: binning without mapping
-                #self.df[column] = self.df[column].apply(lambda x: x if x < threshold else threshold + ((x - threshold) // bin_size))
-                #self.shape.append(self.df[column].max() + 1)
-                #v2: binning with mapping, smaller domain size
                 binned_values= self.df[column].apply(lambda x: x if x < threshold else threshold + ((x - threshold) // bin_size))
                 le = LabelEncoder()
                 self.df[column] = le.fit_transform(binned_values)
@@ -126,21 +119,12 @@ class PreprocessNetwork:
                 bin_size = self.bin_sizes.get(column, 1)
                 bins = np.arange(0, self.df[column].max() + bin_size, bin_size)
                 binned_timestamps = np.digitize(self.df[column], bins, right=False)
-                # method 1:
-                # Calculate bin start for each timestamp
+           
                 bin_starts = ((binned_timestamps - 1) * bin_size).astype('uint64')
                 # Compute the difference
                 timestamp_diff = self.df[column] - bin_starts
                 self.df[column] = binned_timestamps
                 self.shape.append(len(bins))
-
-                # # method 2:
-                # self.df[column] = binned_timestamps
-                # self.shape.append(len(bins))
-                #
-                # # Calculate timestamp_diff without changing the original order
-                # grouped = self.df.groupby(self.field_key)
-                # timestamp_diff = grouped[column].transform(lambda x: x.diff().fillna(0)).astype('uint64')
 
             elif self.field_types[column] in ['float-exponential', 'int-exponential']:
                 # First, apply exponential binning
@@ -175,16 +159,9 @@ class PreprocessNetwork:
         #Save the Mappings to another Pickle File
         with open(config_dpsyn.PROCESSED_DATA_PATH + mapping_filename, 'wb') as file:
             pickle.dump(self.mappings, file)
-        #with open(config.PROCESSED_DATA_PATH + gaussian_filename, 'wb') as f:
-            #pickle.dump(self.gaussian_params, f)
-
-        #self.logger.info("saved data")
 
     def reverse_mapping(self):
         self.logger.info("reverse mapping")
-        # self.df is the encoded version, after dpsyn, it should be updated before calling this function     
-        # Decoding the dataset
-        # Reversing the encoding for categorical fields, binned-ip and binned-port
         for column, mapping in self.mappings.items():
             if column in self.field_types and self.field_types[column] in ['binned-ip', 'binned-port', 'categorical']:
                 inv_map = {v: k for k, v in mapping.items()}
@@ -211,15 +188,11 @@ class PreprocessNetwork:
 
                     self.df[column] = self.df[column].apply(
                         lambda x: x if x < threshold else (threshold + (x - threshold) * bin_size) + random.randint(0,bin_size - 1))
-                    # DS: make sure the value port value is smaller than 65535
                     max_binned_value = threshold + ((65535 - threshold) // bin_size)
                     max_decode_value = threshold + (max_binned_value - threshold) * bin_size
-                    # print('src_bin_size, max_binned_value, max_decode_value')
-                    # print(src_bin_size, max_binned_value, max_decode_value)
                     self.df[column] = self.df[column].apply(
                         lambda x: x if x <= 65535 else (random.randint(max_decode_value ,65535))
                     )
-                    # print(self.df[column].max())
 
                 if column == 'dstport':
                     self.df[column] = self.df[column].apply(
@@ -227,8 +200,6 @@ class PreprocessNetwork:
                             0, bin_size - 1))
                     max_binned_value = threshold + ((65535 - threshold) // bin_size)
                     max_decode_value = threshold + (max_binned_value - threshold) * bin_size
-                    # print('src_bin_size, max_binned_value, max_decode_value')
-                    # print(dst_bin_size, max_binned_value, max_decode_value)
                     self.df[column] = self.df[column].apply(
                         lambda x: x if x <= 65535 else (random.randint(max_decode_value, 65535))
                     )
@@ -245,45 +216,15 @@ class PreprocessNetwork:
                 ts_diff_bin_size = self.bin_sizes.get("ts_diff", 1)
                 # For timestamp fields, reconstruct timestamps from bins
                 initial_timestamp = self.mappings.get('initial_timestamp', 0)
-                # method 1:
                 # Calculate the bin start for each timestamp
                 bin_starts = ((self.df[column] - 1) * bin_size).astype('uint64')
-
-                # Randomly sample within the ts_diff bin range and add to bin starts
-                # ZL TBD: change sampling function, so they are more centralized (gaussian)
-                # random_diff_within_bin = self.df['ts_diff'].apply(
-                #    lambda x: (x - 1) * ts_diff_bin_size + np.random.randint(0, ts_diff_bin_size)
-                # )
-                # Sample within the ts_diff bin range under a Gaussian distribution and add to bin starts
                 mean = ts_diff_bin_size / 2
-                std_dev = ts_diff_bin_size / self.bin_sizes[
-                    'ts_diff_std']  # For example, set std_dev to a quarter of the bin size
+                std_dev = ts_diff_bin_size / self.bin_sizes['ts_diff_std']   
                 gaussian_diff_within_bin = np.random.normal(mean, std_dev, size=len(self.df))
                 # Clip the values to ensure they fall within the bin and round to nearest integer
                 gaussian_diff_within_bin_clipped = np.clip(gaussian_diff_within_bin, 0,
                                                            ts_diff_bin_size - 1).round().astype('uint64')
                 self.df[column] = initial_timestamp + bin_starts + gaussian_diff_within_bin_clipped
-
-                # # method 2:
-                # # Randomly sample a starting point within each timestamp bin
-                # random_start_within_bin = np.random.randint(0, bin_size, size=len(self.df))
-                #
-                # # Use groupby to add ts_diff increments
-                # grouped = self.df.groupby(self.field_key)
-                #
-                # # Sampling within the ts_diff bin range
-                # sampled_ts_diff = grouped['ts_diff'].transform(lambda x: (x - 1) * ts_diff_bin_size + np.random.randint(0, ts_diff_bin_size, size=len(x)))
-                #
-                # # Calculate the cumulative sum of sampled ts_diff within each group
-                # self.df['cumulative_sampled_ts_diff'] = sampled_ts_diff.groupby(self.df[self.field_key].apply(tuple, axis=1)).cumsum()
-                #
-                # # Reconstruct the timestamp by adding the random start within bin and the cumulative ts_diff
-                # bin_starts = ((self.df[column] - 1) * bin_size).astype('uint64')
-                # self.df[column] = initial_timestamp + bin_starts + random_start_within_bin + self.df['cumulative_sampled_ts_diff']
-                # self.df[column] = self.df[column].astype('uint64')
-                #
-                # # Remove the intermediate columns
-                # self.df.drop(['cumulative_sampled_ts_diff'], axis=1, inplace=True)
 
             # Reversing the exponential binning
             elif self.field_types[column] in ['float-exponential', 'int-exponential']:
@@ -304,8 +245,6 @@ class PreprocessNetwork:
         #We don't syntheszing floating point
         self.df.replace([np.inf, -np.inf], np.nan, inplace=True)
         self.df.fillna(0, inplace=True)
-        #for col in self.df.select_dtypes(include=['float64']):
-        #    self.df[col] = self.df[col].astype(int)
 
     def reverse_mapping_from_files(self, pickle_filename, mapping_filename):
         with open(config_dpsyn.SYNTHESIZED_RECORDS_PATH + pickle_filename, 'rb') as file:
@@ -328,9 +267,6 @@ class PreprocessNetwork:
             self.df.to_csv(config_dpsyn.SYNTHESIZED_RECORDS_PATH + csv_filename, index=False)
 
 def main(args):
-    # config the logger
-    os.chdir("../../")
-
     output_file = None
     logging.basicConfig(filename=output_file,
                         format='%(levelname)s:%(asctime)s: - %(name)s - : %(message)s',
@@ -347,5 +283,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = parameter_parser()
-    
     main(args)

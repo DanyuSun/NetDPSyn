@@ -28,12 +28,9 @@ def main(args):
 
     preprocess = PreprocessNetwork()
 
-    synthesized_filename = '_'.join((args['dataset_name'], str(args['epsilon']), str(args['update_iterations']), args['initialize_method']))
+    synthesized_filename = '_'.join((args['dataset_name'], str(args['epsilon'])))
     mapping_filename = args['dataset_name'] + '_mapping'
-    #gaussian_filename = args['dataset_name'] + '_gaussian'
-
-    #ZL TBD: release a noisy version of gaussian
-    #preprocess.reverse_mapping_from_files(synthesized_filename, mapping_filename, gaussian_filename)
+     
     preprocess.reverse_mapping_from_files(synthesized_filename, mapping_filename)
     preprocess.save_data_csv(synthesized_filename + '.csv')
 

@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from statsmodels.tsa.stattools import acf
 import sys
-sys.path.append('/Users/sdy/Desktop/dpsyn_clean_newest/')
+sys.path.append('/home/dsun/NetDPSyn/')
 import config_dpsyn
 import os
 import logging
@@ -21,16 +21,12 @@ def main(args):
 
     file_prefix = args['dataset_name']
 
+    # You can add dataset here to make Comparison: 
     datasets = {
-        #file_prefix + 'Raw': config_dpsyn.RAW_DATA_PATH + file_prefix + '.csv',
-        file_prefix + 'Raw': '/Users/sdy/Desktop/dpsyn_clean_newest/temp_data/raw_data/ugr16.csv',
-        #file_prefix + 'Syn': config_dpsyn.SYNTHESIZED_RECORDS_PATH + ('_'.join((args['dataset_name'], str(args['epsilon']))) + '.csv'),
-        #file_prefix + 'Syn': '/Users/sdy/Desktop/dpsyn_clean_newest/temp_data/synthesized_records/ugr16/ugr16_2.0.csv',
-        #file_prefix + 'Trivial': config.SYNTHESIZED_RECORDS_PATH + file_prefix +'_syn_trivial.csv'
-        file_prefix + 'netshare': '/Users/sdy/Downloads/ugr16,dp_noise_multiplier-4.0 (1).csv',
-        file_prefix + 'netshare_sdy': '/Users/sdy/Desktop/netshare_result/UGR16/syn_df,dp_noise_multiplier-8,eps-2.csv'
-    }
+        file_prefix + 'Raw': config_dpsyn.RAW_DATA_PATH + file_prefix + '.csv',
+        file_prefix + 'Syn': config_dpsyn.SYNTHESIZED_RECORDS_PATH + ('_'.join((args['dataset_name'], str(args['epsilon']))) + '.csv'),
 
+    }
 
     plt.set_loglevel(level = 'warning')
 

@@ -1,5 +1,4 @@
 
-# Importing necessary libraries
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -12,8 +11,7 @@ import os
 import logging
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import sys
-#sys.path.append('/Users/sdy/Desktop/dpsyn_clean_newest/')
-sys.path.append('/home/dsun/dpsyn_clean_newest/')
+sys.path.append('/home/dsun/NetDPSyn/')
 import config_dpsyn
 from parameter_parser import parameter_parser
 import matplotlib.pyplot as plt
@@ -44,24 +42,11 @@ class FlowClassifier:
         label_encoder = LabelEncoder()
         self.data['proto'] = label_encoder.fit_transform(self.data['proto'])
 
-        #ZL: split randomly
         train_data, test_data = train_test_split(self.data, test_size=0.2, random_state=42)
         self.X_train = train_data[self.features]
         self.y_train = train_data[self.target]
         self.X_test = test_data[self.features]
         self.y_test = test_data[self.target]
-
-        '''
-        #ZL: split by time, netshare approach, for some unknown reason, this split has low accuracy on raw data
-        self.data = self.data.sort_values(by="ts")
-        X = self.data[features]
-        y = self.data[target]
-
-
-        train_size = int(len(X) * 0.8)
-        self.X_train, self.X_test = X[:train_size], X[train_size:]
-        self.y_train, self.y_test = y[:train_size], y[train_size:]
-        '''
 
         scaler = StandardScaler()
         self.X_train = scaler.fit_transform(self.X_train)
@@ -90,8 +75,6 @@ def main(args):
     datasets = {
         # file_prefix + 'Raw': config_dpsyn.RAW_DATA_PATH + file_prefix + '.csv',
         file_prefix + 'Syn': config_dpsyn.SYNTHESIZED_RECORDS_PATH + ('_'.join((args['dataset_name'], str(args['epsilon']))) + '.csv'),
-        #file_prefix + 'Trivial': config.SYNTHESIZED_RECORDS_PATH + file_prefix +'_syn_trivial.csv'
-        #file_prefix + 'syn_pgm': '/Users/sdy/Desktop/for_joann/out_ton_decode_with_ts.csv'
     }
 
     models = [
@@ -119,10 +102,7 @@ def main(args):
             print(f'Model: {model.__class__.__name__}, Dataset: {dataset_name}, Accuracy: {accuracy}')
             debugger = ModelDebugger(classifier.model, classifier.data, classifier.features, classifier.target)
 
-            #Plot the decision tree models
             if model.__class__.__name__ == 'DecisionTreeClassifier':
-                #classifier.plotDT()
-                #classifier.print_decision_tree_rules()
                 pass
             elif model.__class__.__name__ == 'LogisticRegression':
                 debugger.print_lr_coef()
@@ -131,9 +111,6 @@ def main(args):
     
     results_df = pd.DataFrame(results)
     print(results_df)
-    #file_path = '/home/dsun/dpsyn_clean_new/dpsyn_clean_new_result.txt'
-    # file_path = '/Users/sdy/Desktop/dpsyn_clean_newest/dpsyn_clean_newest_result.txt'
-    # results_df.to_csv(file_path, sep='\t', index=False)
 
 if __name__ == "__main__":
     args = parameter_parser()
