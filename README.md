@@ -5,27 +5,41 @@
 This repository contains code for the paper: NetDPSyn: Synthesizing Network Traces under Differential Privacy. NetDPSyn is the first system to synthesize high-fidelity network traces under privacy guarantees.
 
 ## Experimental setup
+1. Clone this repo from the GitHub.
+
+        git clone https://github.com/DanyuSun/NetDPSyn.git
 
 1. Download the raw datasets from [here](https://drive.google.com/drive/folders/1MHRJxLhnJWZln8XBCon9UrN_EwVj14BE). And save them in `./temp_data/raw_data/` folder.
 
+2. Your directory structure should look like this:
 
-2. Install the required packages if you haven't done, including  `numpy, pandas, scipy, networkx, scikit-learn, matplotlib`.
+        NetDPSyn
+           └── temp_data
+                   └── raw_data
+                        └── caida.csv
+                        └── cidds.csv
+                        └── dc.csv
+                        └── ton.csv
+                        └── ugr16.csv
+                                         
+                   └── ...
 
-4. **Note:** Please change all the path name in `config_dpsyn.py` to your local path. Also, you need to change the `sys.path`.
+3. **Note:** Please update all the paths in `config_dpsyn.py` to match your local directory structure.
+
 
 ## Usage
 
-1. You first need to preprocess data. Run `lib_preprocess/preprocess_network.py`, set `dataset_name` of `args` to the raw dataset file (without the `.csv` extension, like `ton`). The `num_synthesize_records` can be set to the similar number of the raw dataset. A preprocessed pickle file will be generated, under `temp_data/processed_data`, together with a mapping for binning. It will also generate a trivially decoded csv (binning and unbinning) in `temp_data/synthesized_records`.
+1. **Preprocess Data**. Run `lib_preprocess/preprocess_network.py`. This will generate a preprocessed pickle file in the `temp_data/processed_data` folder, along with a mapping for binning. Additionally, a trivially decoded CSV file (binning and unbinning) will be created in the `temp_data/synthesized_records` folder.
 
         python3 preprocess_network.py
 
 
-2. Then, you need to run `main.py` to generate synthesized data with privsyn, which will be under `temp_data/synthesized_records`.
+2. **Synthesize Data** Next, run `main.py` to generate the synthesized data. The synthesized data will be saved in the `temp_data/synthesized_records` floder.
 
         python3 main.py
 
 
-3. For downstream tasks, you can run code from `lib_downstream` (e.g., `lib_downstream/flow_eval.py`) and specify the same `dataset_name`. It prints out the evaluation results on raw dataset and synthesized dataset.
+3. **Downstream Tasks** You can run code from `lib_downstream` (e.g., `lib_downstream/flow_eval.py`). This will print out the evaluation results for both the raw dataset and the synthesized dataset.
 
 
 ## Citation
