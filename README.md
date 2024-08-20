@@ -23,8 +23,10 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
                         └── ugr16.csv
                                          
                    └── ...
+           └── exp
+           └── ...
 
-3. **Note:** Please update all the paths in `config_dpsyn.py` to match your local directory structure.
+4. **Note:** Please update all the paths in `config_dpsyn.py` to match your local directory structure.
 
 
 ## Usage
