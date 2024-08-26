@@ -32,7 +32,6 @@ class ExpDPSyn(Exp):
                 view.count += noise
             else:
                 view.count += np.random.laplace(scale=self.args['marg_add_sensitivity'] / epsilon, size=view.num_key)
-        #ZL: print rho and epsilon, and dump view
         self.logger.info("rho and epsilon for %s is %f and %f" % (str(view.attr_set), rho,epsilon))        
 
         return view

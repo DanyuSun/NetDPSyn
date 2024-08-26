@@ -16,21 +16,16 @@ class AttrRecord:
 
         self.significant_cell_indices = {}
         self.group_cell_indices = {}
-        # DS: set bins number for grouped value
-        # self.bins = {}
-        # self.new_record = None
 
     def construct_view(self, attr_name, gauss_sigma):
         view = View(self.dataset.domain.project(attr_name), self.dataset.domain)
         view.count_records(self.dataset.df.values)
-        #ZL: Theorem 5, Gaussian noise depends on number of attributes 
         view.count += np.random.normal(scale=gauss_sigma, size=view.num_key)
 
         return view
 
     def recode(self, gauss_sigma):
         dataset_recode = Dataset(copy.deepcopy(self.dataset.df), copy.deepcopy(self.dataset.domain))
-        # DS: fix the size of second step binning
         fixed_bin_size = 10
 
         for index, attr_name in enumerate(self.dataset.domain.attrs):
@@ -70,7 +65,7 @@ class AttrRecord:
                 # encode the cells with values below threshold
                 remain_indices = np.setdiff1d(np.arange(num_records), significant_records_indices)
 
-                # # # DS: binnig the cells with value below threshold
+                # # #: binnig the cells with value below threshold
                 # min_val = self.dataset.df[attr_name].min()
                 # max_val = self.dataset.df[attr_name].max()
                 # self.bins[attr_name] = np.arange(min_val, max_val + fixed_bin_size, fixed_bin_size)
@@ -92,7 +87,7 @@ class AttrRecord:
             self.significant_cell_indices[attr_name] = significant_cell_indices
             self.group_cell_indices[attr_name] = group_cell_indices
 
-            #ZL: changed to add the domain size before recoding
+            #changed to add the domain size before recoding
             self.logger.info("remain %s values, before %s values" % (dataset_recode.domain.shape[attr_index], self.dataset.domain.shape[attr_index]))
 
         #print('bins:', self.bins)
@@ -112,7 +107,7 @@ class AttrRecord:
                 anchor_value_indices = np.where(encode_record == anchor_value)[0]
                 decode_record[anchor_value_indices] = significant_cell_indices[anchor_value]
 
-            # # DS: decode the grouped value
+            # # decode the grouped value
             # if attr_name in self.bins.keys():
             #     for i in range(len(self.bins[attr_name]) - 1):
             #         bin_indices = np.where(len(significant_cell_indices) + len(self.bins[attr_name]))[0]
@@ -121,7 +116,7 @@ class AttrRecord:
             #                                               size=bin_indices.size)
             #             decode_record[bin_indices] = random_values
 
-            # # DS: decode the grouped value
+            # # decode the grouped value
             # #for i in range(len(group_cell_indices[attr_name])):
             # if attr_name in self.bins.keys():
             #     for i in range(len(self.bins[attr_name]) - 1):
@@ -151,10 +146,9 @@ class AttrRecord:
                         start = end
 
             df[attr_name] = decode_record
-        #df.to_csv('/Users/sdy/Desktop/decode_debug.csv', index=False)
 
     def decode_marginal(self, df, attrs):
-        #ZL: decode a marginal dataframe with fewer columns
+        # decode a marginal dataframe with fewer columns
         df_decode = copy.deepcopy(df)
         for attr_name in attrs:
             #self.logger.info("decoding attribute %s" % (attr_name,))
@@ -171,14 +165,12 @@ class AttrRecord:
 
             # decode the grouped value
             if group_cell_indices.size != 0:
-                #ZL: the grouped cells are all assigned with significant_cell_indices.size (signficant cells are moved together in linear space)
                 anchor_value_indices = np.where(encode_record == significant_cell_indices.size)[0]
 
                 if anchor_value_indices.size != 0:
                     group_value_dist = np.full(group_cell_indices.size, 1.0 / group_cell_indices.size)
                     group_value_cumsum = np.cumsum(group_value_dist)
                     start = 0
-                    #ZL: this decoding code looks quite arbitrary...just increment the group cell indices and set to the decoded df
                     for index, value in enumerate(group_value_cumsum):
                         end = int(round(value * anchor_value_indices.size))
 

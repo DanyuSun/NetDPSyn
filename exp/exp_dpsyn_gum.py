@@ -27,7 +27,6 @@ class ExpDPSynGUM(ExpDPSyn):
             self.selected_attrs = tuple(marginal_name.split("_"))
 
         ################################## main procedure ##########################################
-        ################################## main procedure ##########################################
         self.preprocessing()
         self.construct_views()
         for key, view in self.views_dict.items():
@@ -35,7 +34,6 @@ class ExpDPSynGUM(ExpDPSyn):
 
         for key, view in self.views_dict.items():
            self.data_store.save_one_marginal("construct", view, self.attr_recode)
-        #ZL: dump the marginal for each phase
         self.anonymize_views()
         for key, view in self.views_dict.items():
             self.data_store.save_one_marginal("anonymize", view, self.attr_recode)
@@ -54,15 +52,13 @@ class ExpDPSynGUM(ExpDPSyn):
         self.data_store.save_one_marginal("postprocessing", self.synthesized_df)
 
     def preprocessing(self):
-        #ZL: Section 5.3 Separate & Join. If graph is separated, GUM is done on several lists of marginals independently
-        #ZL: for Attribute Append, it just concatenate the marginal with degree=1 to the dataset after GUM
         self.sep_graph = SepGraph(self.original_dataset.domain, self.marginals)
         self.sep_graph.cut_graph()
 
         self.attr_append = AttrAppend(self.attr_recode.dataset.domain, self.marginals)
 
         iterate_marginals = self.attr_append.clip_graph(enable=self.args['append'])
-        #ZL: debugging
+ 
         self.logger.info("iterate_marginals after clip_graph is %s" % (iterate_marginals,))
 
         self.iterate_keys = self.sep_graph.find_sep_graph(iterate_marginals, enable=self.args['sep_syn'])
@@ -80,7 +76,6 @@ class ExpDPSynGUM(ExpDPSyn):
             self.singleton_key.append((singleton,))
 
     def anonymize_views(self):
-        #ZL: add noise
         self.logger.info("anonymizing views")
 
         divider = 0.0
@@ -108,7 +103,6 @@ class ExpDPSynGUM(ExpDPSyn):
         #     print(view.num_categories)
 
     def synthesize_records(self, args):
-        #ZL: GUM
         self.synthesized_df = pd.DataFrame(data=np.zeros([self.args['num_synthesize_records'], self.num_attributes], dtype=np.uint32),
                                            columns=self.original_dataset.domain.attrs)
         self.error_tracker = pd.DataFrame()
@@ -118,20 +112,16 @@ class ExpDPSynGUM(ExpDPSyn):
 
             self.logger.info("synthesizing for %s" % (key,))
 
-            #ZL: bootstrap dataframe with marginals, manual or auto
             self.marginal_init = None
             if args["initialize_method"] == "marginal_manual":
                 self.marginal_init = ast.literal_eval(config_dpsyn.MARGINAL_INIT)
             elif args["initialize_method"] == "marginal_auto":
-                #ZL: infer the bootstrapping marginals from data
                 self.marginal_init = self.find_init_marginals(value)
-                #ZL: order self.marginal_init by in_dif, so highly correlated marginals are less likely to be changed
                 self.marginal_init = self.rank_marginals(self.marginal_init)
 
             synthesizer = self._update_records(value)
             self.synthesized_df.loc[:, key] = synthesizer.update.df.loc[:, key]
 
-            #ZL: error because of old append is deprecated
             #self.error_tracker = self.error_tracker.append(synthesizer.update.error_tracker)
             self.error_tracker = pd.concat([self.error_tracker, synthesizer.update.error_tracker])
 
@@ -268,13 +258,7 @@ class ExpDPSynGUM(ExpDPSyn):
             views_iterate_key = synthesizer.update_order(update_iteration, self.views_dict, views_iterate_key)
 
 
-            for index, key in enumerate(views_iterate_key):
-                #ZL: commented out, too many log messages
-                #self.logger.info("updating %s view: %s, num_key: %s" % (index, key, self.views_dict[key].num_key))
-                 # ZL: selecting the minimum set of marginals without breaking connectivity
-                #if self.marginal_filter is not None and key not in self.marginal_filter:
-                #    continue
-                # ZL: measure the changes of interesting marginal to the original marginal
+            for index, key in enumerate(views_iterate_key):  
                 synthesizer.update_records(self.views_dict[key], key, update_iteration)
                 # if self.selected_attrs is not None:
                 #     marginal_after_update = self.get_df_marginal(synthesizer.update.df, list(self.selected_attrs), self.attr_recode)
@@ -285,9 +269,6 @@ class ExpDPSynGUM(ExpDPSyn):
                 marginal_after_update = self.get_df_marginal(synthesizer.update.df, list(self.selected_attrs),self.attr_recode)
                 self.logger.info("synthesize %s (iteration %d), JSD after update: %f" % (str(self.selected_attrs), update_iteration, self.diff_marginal(marginal_consisted, marginal_after_update)))
                 jsd_value.append(self.diff_marginal(marginal_consisted, marginal_after_update))
-
-            #ZL: save the result of each iteration, problem starts from the first iteration
-            # self.data_store.save_one_marginal("synthesize-iter-"+str(update_iteration), synthesizer.update.df, self.attr_recode)
 
         print('jsd_value')
         print(jsd_value)

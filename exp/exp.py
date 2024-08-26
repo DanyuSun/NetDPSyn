@@ -24,7 +24,6 @@ class Exp:
         self.load_data()
         self.logger.info("original dataset domain: %e" % (self.original_dataset.domain.size(),))
         
-        #ZL: save the original marginal
         self.data_store.save_one_marginal("original", self.original_dataset.df)
 
         self.num_records = self.original_dataset.df.shape[0]
@@ -35,7 +34,7 @@ class Exp:
         self.remain_rho = self._calculate_rho(self.remain_epsilon)
         self.marginals = self.select_marginals(self.original_dataset)
         self.gauss_sigma = self._calculate_sigma(self.remain_epsilon, len(self.marginals) + self.num_attributes)
-        #ZL: recode groups low-count values 
+        # recode groups low-count values 
         self.attr_recode = self.recode_attrs(self.gauss_sigma)
         
         self.logger.info('rho: %s | sigma: %s' % (self.remain_rho, self.gauss_sigma))
