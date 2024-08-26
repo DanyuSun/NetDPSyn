@@ -12,11 +12,8 @@ class RecordUpdate:
         self.num_records = num_records
 
 
-
     def initialize_records(self, iterate_keys, method="random", singletons=None, marginals=None, pred_attr=None):
         self.logger.info("initializing synthesized dataframe")
-        #ZL: Danyu found this bug
-        #self.records = np.empty([self.num_records, len(self.domain.attrs)], dtype=np.uint32)
         self.records = np.zeros([self.num_records, len(self.domain.attrs)], dtype=np.uint32)
         self.df = pd.DataFrame(self.records, columns=self.domain.attrs, copy=False)
 
@@ -29,32 +26,23 @@ class RecordUpdate:
                     self.df[attr] = self.generate_singleton_records(singletons[attr])
 
         elif method in ["marginal_manual", "marginal_auto"]:
-            #ZL: initialization from selected marginals
+            # initialization from selected marginals
             init_attrs = set()
             for index, marginal in enumerate(marginals):
                 self.logger.info("initializing with marginal %s", (str(marginal.attr_names),))
                 if index == 0:
-                    #first marginal, self.df tries to be fully consistent with it
+                    # first marginal, self.df tries to be fully consistent with it
                     new_df = self.generate_marginal_records(marginal, pred_attr)
                 else:
-                    #other marginals, update the overlapping attributes 
+                    # other marginals, update the overlapping attributes 
                     new_df = self.update_marginal_records(marginal, init_attrs, pred_attr)
-                #ZL: debug, print out type distribution
-                #type_ratio = new_df.groupby('type').size()
-                #print(type_ratio)
-                #print(marginal.decode_records())
-                #print(new_df)
-                #marginal_new_df = new_df.groupby(list(marginal.attr_names)).size().reset_index(name='count')
-                #print(marginal_new_df)
                 for col in set(new_df.columns) - init_attrs:
                     self.df[col] = new_df[col]
                 init_attrs.update(marginal.attr_names)
             self.df = self.df.sample(frac=1).reset_index(drop=True)
-            #ZL: for the remaining attributes not in marginals, run singleton method
             for attr in set(self.domain.attrs) - init_attrs:
                 self.df[attr] = self.generate_singleton_records(singletons[attr])
         self.error_tracker = pd.DataFrame(index=iterate_keys)
-        #ZL: critical fix, otherwise self.records used later by GUM is not synced with self.df
         self.records = self.df.to_numpy()
 
 
@@ -96,7 +84,6 @@ class RecordUpdate:
 
 
     def update_marginal_records(self, marginal, init_attrs, pred_attr):
-        #ZL: update df by one marginal
         df_generated = self.df[marginal.attr_names].copy()
         marginal_df = marginal.decode_records()
         # Identify overlapping attributes (already synthesized) in the new marginal
@@ -120,8 +107,6 @@ class RecordUpdate:
             ratio_changes = {k: original_ratio_dict[k] / new_ratio_dict[k] for k in new_ratio_dict}
 
             # Update the counts in the marginal_df
-            # DS: find bug when overlapping_attrs more than one attr, using tuple instead of one attribute
-            # marginal_df['adjusted_count'] = marginal_df.apply(lambda row: row['count'] * ratio_changes.get(row['type']), axis=1)
             marginal_df['adjusted_count'] = marginal_df.apply(
                 lambda row: row['count'] * ratio_changes.get(tuple(row[attr] for attr in overlapping_attrs), 1), axis=1)
 
@@ -233,15 +218,12 @@ class RecordUpdate:
                 self.records_throw_indices = self.records_throw_indices[num_complete[valid_index] + num_partial[valid_index]:]
             
             else:
-                # todo: simply apply complete operation here, do not know whether it is make sense
                 self.records[self.records_throw_indices] = self.records[
                     match_records_indices[: self.records_throw_indices.size]]
-        #ZL: critical fix, otherwise self.df used by exp_dpsyn_gum is not updated
         self.df = pd.DataFrame(self.records, columns=self.domain.attrs, copy=False)
    
     def handle_zero_cells(self, view):
         # overwrite / partial when synthesize_marginal == 0
-        # ZL: [confused] how it handles zero cells
         if self.cell_zero_indices.size != 0:
             for index, cell_index in enumerate(self.cell_zero_indices):
                 num_partial = int(self.num_add_zero[index])
@@ -287,40 +269,16 @@ class RecordUpdate:
     def update_records_before(self, view, view_key, iteration, mute=False):
         self.actual_marginal = view.normalize_count
         self.synthesize_marginal = self.synthesize_marginal_distribution(view)
-        
         l1_error = self._l1_distance(self.actual_marginal, self.synthesize_marginal)
-
-        #ZL: exception because view_key should be a MultiIndex, as it's a tuple
-        #self.error_tracker.loc[view_key, "%s-before" % (iteration,)] = l1_error
-        #vk = pd.MultiIndex.from_tuples([view_key])
-        #self.error_tracker.loc[vk, "%s-before" % (iteration,)] = l1_error
-        #ZL: Danyu found changing view_key (tuple) to a list solve
         self.error_tracker.loc[[view_key], "%s-before" % (iteration,)] = l1_error
-        
-        #if not mute:
-        #self.logger.info("for %s the l1 error before updating is %s" % (view_key, l1_error))
 
     def update_records_after(self, view, view_key, iteration):
         self.synthesize_marginal = self.synthesize_marginal_distribution(view)
-        
         l1_error = self._l1_distance(self.actual_marginal, self.synthesize_marginal)
-
-        #ZL: exception because view_key should be a MultiIndex, as it's a tuple
-        #self.error_tracker.loc[view_key, "%s-before" % (iteration,)] = l1_error
-        #vk = pd.MultiIndex.from_tuples([view_key])
-        #ZL: Danyu found changing view_key (tuple) to a list solve
         self.error_tracker.loc[[view_key], "%s-after" % (iteration,)] = l1_error
-        
-        #self.logger.info("for %s the l1 error after updating is %s" % (view_key, l1_error))
-        
-        # if iteration == 0:
-        #     self.logger.info("shuffling records")
-        #     np.random.shuffle(self.records)
     
     def synthesize_marginal_distribution(self, view):
         count = view.count_records_general(self.records)
-        # count_matrix = view.calculate_count_matrix_general(count)
-        
         return view.calculate_normalize_count_general(count)
 
     def stochastic_rounding(self, vector):

@@ -177,7 +177,6 @@ class ExpDPSynGUM(ExpDPSyn):
         marginal_dfs = {key: self.views_dict[key].decode_records() for key in marginal_tuples}
         for key, df in marginal_dfs.items():
             expanded_df = expand_marginal_df(df)
-            #ZL TBD: could think about another metric
             correlation = calculate_correlation_with_type(expanded_df, self.pred_attr)
             num_attributes = len(df.columns) - 1  # excluding count column
             marginal_info.append((key, num_attributes, correlation))

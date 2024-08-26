@@ -107,28 +107,6 @@ class AttrRecord:
                 anchor_value_indices = np.where(encode_record == anchor_value)[0]
                 decode_record[anchor_value_indices] = significant_cell_indices[anchor_value]
 
-            # # decode the grouped value
-            # if attr_name in self.bins.keys():
-            #     for i in range(len(self.bins[attr_name]) - 1):
-            #         bin_indices = np.where(len(significant_cell_indices) + len(self.bins[attr_name]))[0]
-            #         if bin_indices.size != 0:
-            #             random_values = np.random.uniform(low=self.bins[attr_name][i], high=self.bins[attr_name][i + 1],
-            #                                               size=bin_indices.size)
-            #             decode_record[bin_indices] = random_values
-
-            # # decode the grouped value
-            # #for i in range(len(group_cell_indices[attr_name])):
-            # if attr_name in self.bins.keys():
-            #     for i in range(len(self.bins[attr_name]) - 1):
-            #         #if group_cell_indices.size != 0:
-            #         if group_cell_indices.all():
-            #             indices_in_bin = np.where(encode_record == len(significant_cell_indices) + len(self.bins[attr_name]))[0]
-            #             #if indices_in_bin.size != 0:
-            #             if indices_in_bin.all():
-            #                 random_values = np.random.uniform(low=self.bins[attr_name][i], high=self.bins[attr_name][i + 1],
-            #                                                   size=len(indices_in_bin))
-            #                 decode_record[indices_in_bin] = random_values
-
             # decode the grouped value
             if group_cell_indices.size != 0:
                 anchor_value_indices = np.where(encode_record == significant_cell_indices.size)[0]
@@ -152,7 +130,7 @@ class AttrRecord:
         df_decode = copy.deepcopy(df)
         for attr_name in attrs:
             #self.logger.info("decoding attribute %s" % (attr_name,))
-
+            
             significant_cell_indices = self.significant_cell_indices[attr_name]
             group_cell_indices = self.group_cell_indices[attr_name]
             encode_record = np.copy(df_decode[attr_name])

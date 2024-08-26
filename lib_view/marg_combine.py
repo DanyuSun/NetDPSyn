@@ -17,7 +17,6 @@ class MargCombine:
         self.graph = self._construct_graph()
 
     def determine_marginals(self, threshold, enable=True):
-        #ZL: it runs Algorithm 2
         if not enable:
             return self.marginals
 

@@ -19,8 +19,6 @@ class AttrDepend:
         self.dataset_domain = copy.deepcopy(dataset.domain)
         self.original_domain = copy.deepcopy(dataset.domain)
         self.dataset_name = dataset_name
-
-        # DS: add args
         self.args = args
 
     def transform_records_distinct_value(self):
@@ -85,11 +83,9 @@ class AttrDepend:
         self.logger.info("calculated pair dependency")
 
     def solve_score_function(self, dataset_name, epsilon, rho, marg_add_sensitivity, marg_select_sensitivity, noise_add_method):
-        #ZL: Algorithm 1
         self.logger.info("choosing marginals")
 
         self.dependency_df = pickle.load(open(config_dpsyn.DEPENDENCY_PATH + self.dataset_name, "rb"))
-        # self.dependency_df.rename(columns={"first attr": "first_attr", "second attr": "second_attr"}, inplace=True)
 
         if epsilon != 0.0:
             composition = AdvancedComposition()
@@ -102,40 +98,14 @@ class AttrDepend:
         self.selected_attrs = set()
 
         error = self.dependency_df["error"].to_numpy() * self.df.shape[0]
-        # error = self.dependency_df["error"].to_numpy()
-        #ZL: np.float deprecated
-        #num_cells = self.dependency_df["num_cells"].to_numpy().astype(np.float)
         num_cells = self.dependency_df["num_cells"].to_numpy().astype(np.float64)
         overall_error = np.sum(error)
         selected = set()
         unselected = set(self.dependency_df.index)
 
-        # gauss_error_normalizer = np.sum(error) / (np.sum(np.power(num_cells, 0.75)) * np.sqrt(np.sum(np.sqrt(num_cells))))
-        # gauss_error_normalizer = 1.0 / (np.sum(error) * self.df.shape[0])
         gauss_error_normalizer = 1.0
 
-        # manually tune the threshold to achieve better performance
-        # ZL: TBD, make the threshold as args, stop to select the marginals when gap (or error difference after selecting new marginal) is smaller than the threshold, in paper it's 0
         threshold = self.args['threshold']
-
-        # if dataset_name == "colorado":
-        #     threshold = 20000.0
-        # elif dataset_name == "loan":
-        #     threshold = -20000.0
-        # elif dataset_name == "accident":
-        #     threshold = -10000.0
-        # elif dataset_name == "colorado-reduce":
-        #     threshold = 5000.0
-        # elif dataset_name == "adult":
-        #     threshold = 0.0
-        # elif dataset_name == "ton_10000":
-        #     threshold = 2000.0
-        # elif dataset_name == "ton":
-        #     threshold = 20000.0
-        # elif dataset_name == "caida":
-        #     threshold = 20000.0
-        # else:
-        #     raise Exception("invalid dataset name")
 
         while gap > threshold:
             error_new = np.sum(error)
@@ -145,9 +115,6 @@ class AttrDepend:
                 select_candidate = selected.union({j})
 
                 if noise_add_method == "A3":
-                    # cells_square_sum = np.sum(np.sqrt(num_cells[list(select_candidate)]))
-                    # gauss_constant = np.sqrt(marg_add_sensitivity ** 2 / (2 * rho) * cells_square_sum)
-                    # gauss_error = np.sum(gauss_constant * np.power(num_cells[list(select_candidate)], 0.75))
                     cells_square_sum = np.sum(np.power(num_cells[list(select_candidate)], 2.0 / 3.0))
                     gauss_constant = np.sqrt(cells_square_sum / (math.pi * rho))
                     gauss_error = np.sum(gauss_constant * np.power(num_cells[list(select_candidate)], 2.0 / 3.0))

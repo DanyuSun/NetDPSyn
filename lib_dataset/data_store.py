@@ -44,10 +44,8 @@ class DataStore:
         return pickle.load(open(self.marginal_file, 'rb'))
 
     def save_one_marginal(self, step, data, attr_recode = None):
-        #ZL: added to debug the marginal
         if self.args['dump_marginal'] == 'None':
-            return
-        #parse marginal_name      
+            return      
         marginal_name = self.args['dump_marginal']
 
         if type(data) is DataFrame:
@@ -70,7 +68,6 @@ class DataStore:
                 return
             marginal = view.decode_records(attr_recode)        
         sorted_marginal = marginal.sort_values(by='count', ascending=False)
-        #TBD: reverse mapping on the marginal
         csv_file = config_dpsyn.MARGINAL_PATH + self.args["dataset_name"] + "_" + str(self.args["epsilon"]) + "_" + marginal_name + "_" + step + ".csv"
         sorted_marginal.to_csv(csv_file, index=False)
            

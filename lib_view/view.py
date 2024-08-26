@@ -11,7 +11,6 @@ class View:
 
         self.attributes_index = np.nonzero(self.indicator)[0]
         self.attr_set = set(view_domain.attrs)
-        #ZL: store attr_names to be later used by decoding self.count
         self.attr_names = [dataset_domain.attrs[i] for i in self.attributes_index]
 
         self.num_key = np.product(self.num_categories[self.attributes_index])
@@ -57,23 +56,16 @@ class View:
             self.num_key = 1
     
     def count_records(self, records):        
-        #ZL: matmul maps the combined value of multiple attributes to a single value with encode_num that separates the linear space between attribute values
         encode_records = np.matmul(records[:, self.attributes_index], self.encode_num)
-        #print('encode_records', encode_records)
         encode_key, count = np.unique(encode_records, return_counts=True)
-        #print('encode_key, count', encode_key, count)
-        #print('self.num_key', self.num_key)
         
-        #ZL: each encode_key is an index of the combined attribute value of the count vector, which has all the possible encoded values, so a lot of them are 0
         indices = np.where(np.isin(np.arange(self.num_key), encode_key))[0]
-        #print('indices', indices)
         try:
             self.count[indices] = count
         except:
             raise Exception("num_key is smaller than the largest value, check domain shape")
 
     def decode_records(self, attr_recode = None):
-        #ZL: decode self.count 
         decoded_records = []
         self.calculate_tuple_key()
         # Iterate over all indices in self.count
@@ -93,14 +85,11 @@ class View:
         return decoded_df
 
     def filter_count(self, threshold):
-        #ZL: filter self.count to remove the small marginal records
-        #This shouldn't be called by consist because otherwise _l1_distance will return error (it computes on actual and synthesized marginal)
         self.count = self.count[self.count >= threshold]
         self.num_key = len(self.count)
 
     def calculate_normalize_count(self):
         self.normalize_count = self.count / np.sum(self.count)
-        
         return self.normalize_count
     
     def calculate_count_matrix(self):
@@ -194,13 +183,8 @@ class View:
         
         encode_tuple_key = np.matmul(bigger_view.tuple_key, encode_num)
         self.count = np.bincount(encode_tuple_key, weights=bigger_view.count, minlength=self.num_key)
-        
-        # for i in range(self.num_key):
-        #     key_index = np.where(encode_tuple_key == i)[0]
-        #     self.count[i] = np.sum(bigger_view.count[key_index])
     
-    ######################################## functions for consistency #######################
-    ############ used in commom view #############
+    ######################### functions for consistency #######################
     def init_consist_parameters(self, num_target_views):
         self.summations = np.zeros([self.num_key, num_target_views])
         self.weights = np.zeros(num_target_views)
@@ -223,10 +207,6 @@ class View:
         self.rhos[index] = bigger_view.rho
 
         self.summations[:, index] = np.bincount(encode_tuple_key, weights=bigger_view.count, minlength=self.num_key)
-        
-        # for i in range(self.num_key):
-        #     key_index = np.where(encode_tuple_key == i)[0]
-        #     self.summations[i, index] = np.sum(bigger_view.count[key_index])
 
     ############### used in views to be consisted ###############
     def update_view(self, common_view, index):
@@ -239,10 +219,6 @@ class View:
         sort_indices = np.argsort(encode_tuple_key)
         _, count = np.unique(encode_tuple_key, return_counts=True)
         np.add.at(self.count, sort_indices, np.repeat(common_view.delta[:, index], count))
-
-        # for i in range(common_view.num_key):
-        #     key_index = np.where(encode_tuple_key == i)[0]
-        #     self.count[key_index] += common_view.delta[i, index]
 
     ######################################### non-negative functions ####################################
     def non_negativity(self, method, iteration=-1):

@@ -101,15 +101,6 @@ class Consistenter:
             # view.generate_attributes_index_set()
             # view.get_sum()
 
-        # print('in consistent part:')
-        # for key, view in self.views.items():
-        #     print(key)
-        #     if key == (('pkt', 'byt')) or key == (('byt', 'pkt')):
-        #         print(view)
-        #
-        # exit()
-
-
         # calculate the dependency relationship
         subsets_with_dependency = self._compute_dependency()
         self.logger.debug("dependency computed")
@@ -164,12 +155,7 @@ class Consistenter:
         # calculate normalized count
         for key, view in self.views.items():
             view.calculate_normalize_count()
-            # view.get_sum()
 
-        # for key, view in self.views.items():
-        #     print('view.count')
-        #     print(view.count)
-        #
-        # exit()
+      
 
 

@@ -31,47 +31,38 @@ class UpdateConfig:
 
         # step decay
         elif self.alpha_update_method == "U4":
-            # self.alpha = 1.0 * 0.8 ** (iteration // 20)
             self.alpha = 1.0 * 0.84 ** (iteration // 20)
 
         # exponential decay
         elif self.alpha_update_method == "U5":
-            # self.alpha = math.exp(- 0.015 * iteration)
             self.alpha = math.exp(- 0.008 * iteration)
 
         # 1/t decay / linear decay
         elif self.alpha_update_method == "U6":
-            # self.alpha = 1.0 / (1.0 + 0.25 * iteration)
             self.alpha = 1.0 / (1.0 + 0.02 * iteration)
 
         # square root decay
         elif self.alpha_update_method == "U7":
-            # self.alpha = 1.0 / math.sqrt(iteration + 1.0)
             self.alpha = 1.0 / math.sqrt(0.12 * iteration + 1.0)
 
         # fix 1.0
         elif self.alpha_update_method == "U8":
-            # self.alpha = 1.0 / math.sqrt(iteration + 1.0)
             self.alpha = 1.0
 
         # fix 0.2
         elif self.alpha_update_method == "U9":
-            # self.alpha = 1.0 / math.sqrt(iteration + 1.0)
             self.alpha = 0.2
 
         # fix 0.3
         elif self.alpha_update_method == "U10":
-            # self.alpha = 1.0 / math.sqrt(iteration + 1.0)
             self.alpha = 0.3
 
         # fix 0.5
         elif self.alpha_update_method == "U11":
-            # self.alpha = 1.0 / math.sqrt(iteration + 1.0)
             self.alpha = 0.5
 
         # fix 0.1
         elif self.alpha_update_method == "U12":
-            # self.alpha = 1.0 / math.sqrt(iteration + 1.0)
             self.alpha = 0.1
 
         else:
@@ -87,7 +78,6 @@ class UpdateConfig:
 
     def update_records(self, original_view, view_key, iteration):
         view = copy.deepcopy(original_view)
-        #ZL: muted, too many logs
         self.update.update_records_before(view, view_key, iteration, mute=True)
 
         self.update.update_records_main(view, self.alpha)
