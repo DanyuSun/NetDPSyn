@@ -34,12 +34,12 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
         python3 preprocess_network.py
 
 
-2. **Synthesize Data** Next, run `main.py` to generate the synthesized data. The synthesized data will be saved in the `temp_data/synthesized_records` floder.
+2. **Synthesize Data**. Next, run `main.py` to generate the synthesized data. The synthesized data will be saved in the `temp_data/synthesized_records` floder.
 
         python3 main.py
 
 
-3. **Downstream Tasks** You can run code from `lib_downstream` (e.g., `lib_downstream/flow_eval.py`). This will print out the evaluation results for both the raw dataset and the synthesized dataset.
+3. **Downstream Tasks**. You can run code from `lib_downstream` (e.g., `lib_downstream/flow_eval.py`). This will print out the evaluation results for both the raw dataset and the synthesized dataset.
 
 
 ## Citation
