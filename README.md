@@ -24,7 +24,7 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
            └── exp
            └── ...
 
-4. **Note:** Please update all the paths in `config_dpsyn.py` to match your local directory structure.
+4. **Note:** Please ensure all paths in `config_dpsyn.py` are updated to reflect your local directory structure. Additionally, you can adjust parameters in `parameter_parser.py` as needed.
 
 
 ## Usage
@@ -40,6 +40,8 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
 
 
 3. **Downstream Tasks**. You can run code from `lib_downstream` (e.g., `lib_downstream/flow_eval.py`). This will print out the evaluation results for both the raw dataset and the synthesized dataset.
+
+        python flow_eval.py
 
 
 ## Citation

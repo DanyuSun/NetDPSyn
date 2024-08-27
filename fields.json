@@ -1,0 +1,43 @@
+{
+    "field_types": {
+        "srcip": "binned-ip",
+        "dstip": "binned-ip",
+        "srcport": "binned-port",
+        "dstport": "binned-port",
+        "proto": "categorical",
+        "ts": "timestamp",
+        "td": "float-exponential",
+        "pkt": "int-exponential",
+        "byt": "int-exponential",
+        "label": "categorical",
+        "type": "categorical",
+        "time": "timestamp",
+        "pkt_len": "categorical",
+        "version": "categorical",
+        "ihl": "categorical",
+        "tos": "categorical",
+        "id": "int-exponential",
+        "flag": "categorical",
+        "off": "categorical",
+        "ttl": "categorical",
+        "chksum": "int-exponential"
+    },
+    "bin_sizes": {
+        "srcip": 30,
+        "dstip": 30,
+        "srcport": 1024,
+        "dstport": 1024,
+        "port_bin_size": 10,
+        "ts": 10000000000,
+        "td": 2,
+        "pkt": 2,
+        "byt": 2,
+        "time": 10000000000,
+        "pkt_len": 2,
+        "id": 2,
+        "chksum": 50,
+        "ts_diff": 50000000,
+        "ts_diff_std": 4
+    },
+    "flow_key": ["srcip", "dstip", "srcport", "dstport", "proto"]
+}

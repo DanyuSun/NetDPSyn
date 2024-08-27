@@ -6,13 +6,12 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
-
 import os
 import logging
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import config_dpsyn
-sys.path.append(config_dpsyn.PROJECT_PATH)
 from parameter_parser import parameter_parser
 import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier, plot_tree
