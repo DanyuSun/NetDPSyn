@@ -1,6 +1,5 @@
 from functools import reduce
 
-
 class Domain:
     def __init__(self, attrs, shape):
         """ Construct a Domain object

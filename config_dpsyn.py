@@ -1,4 +1,5 @@
 # path related constant
+PROJECT_PATH = "/home/dsun/NetDPSyn/"
 RAW_DATA_PATH = "/home/dsun/NetDPSyn/temp_data/raw_data/"
 PROCESSED_DATA_PATH = "/home/dsun/NetDPSyn/temp_data/processed_data/"
 SYNTHESIZED_RECORDS_PATH = "/home/dsun/NetDPSyn/temp_data/synthesized_records/"

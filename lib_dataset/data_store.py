@@ -1,11 +1,8 @@
 import pickle
 import os
 import sys
-sys.path.append('/Users/sdy/Desktop/dpsyn_clean_newest/')
-#sys.path.append('/home/dsun/dpsyn_clean_newest/')
-
 import config_dpsyn
-
+sys.path.append(config_dpsyn.PROJECT_PATH)
 from lib_view.view import View
 from lib_dataset.domain import Domain
 from pandas import DataFrame

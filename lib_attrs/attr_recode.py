@@ -1,8 +1,6 @@
 import logging
 import copy
-
 import numpy as np
-
 from lib_view.view import View
 from lib_dataset.dataset import Dataset
 

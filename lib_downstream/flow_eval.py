@@ -11,8 +11,8 @@ import os
 import logging
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import sys
-sys.path.append('/home/dsun/NetDPSyn/')
 import config_dpsyn
+sys.path.append(config_dpsyn.PROJECT_PATH)
 from parameter_parser import parameter_parser
 import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier, plot_tree
@@ -73,7 +73,7 @@ def main(args):
     file_prefix = args['dataset_name']
 
     datasets = {
-        # file_prefix + 'Raw': config_dpsyn.RAW_DATA_PATH + file_prefix + '.csv',
+        file_prefix + 'Raw': config_dpsyn.RAW_DATA_PATH + file_prefix + '.csv',
         file_prefix + 'Syn': config_dpsyn.SYNTHESIZED_RECORDS_PATH + ('_'.join((args['dataset_name'], str(args['epsilon']))) + '.csv'),
     }
 
@@ -114,6 +114,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parameter_parser()
-    
     main(args)
 

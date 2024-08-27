@@ -2,10 +2,8 @@ import datetime
 import logging
 import math
 import time
-
 import numpy as np
 import pandas as pd
-
 from exp.exp_dpsyn import ExpDPSyn
 from lib_dpsyn.sep_graph import SepGraph
 from lib_dpsyn.update_config import UpdateConfig

@@ -61,7 +61,6 @@ def parameter_parser():
     parser.add_argument('--num_synthesize_records', type=int, default=int(6e5))
     parser.add_argument('--update_iterations', type=int, default=200)
 
-    ############################################# parameters added by zl ############################################
     parser.add_argument('--dump_marginal', type=str, default='None',
                         help='dump one marginal by tuple of attr names to MARGINAL FOLDER')
     parser.add_argument('--is_syn_filtered', type=str2bool, default=False,
@@ -71,7 +70,6 @@ def parameter_parser():
                              'type-> flow data'
                              'flag-> pcap data')
 
-    ############################################# parameters added by ds ############################################
     parser.add_argument('--binning_method', type=str, default='manual',
                         help='manual -> manually add binning size;'
                              'optimized -> optimize binning method')

@@ -1,6 +1,5 @@
 import math
 
-
 class AdvancedComposition:
     def __init__(self):
         pass

@@ -1,8 +1,6 @@
 from functools import reduce
 import math
-
 import numpy as np
-
 from exp.exp import Exp
 from lib_view.view import View
 from lib_view.consistent import Consistenter
