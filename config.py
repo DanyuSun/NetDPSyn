@@ -9,5 +9,4 @@ ALL_PATH = [RAW_DATA_PATH, PROCESSED_DATA_PATH, SYNTHESIZED_RECORDS_PATH, MARGIN
 
 # config file path
 TYPE_CONIFG_PATH = "Net-PrivSyn/dpsyn_clean/fields.json"
-# ZL: added srcip and dstip but not really working
 MARGINAL_INIT = "[('dstport','type'), ('proto', 'byt', 'label', 'type'), ('ts', 'type'), ('td', 'type'), ('pkt', 'type'), ('srcport', 'type')]"
