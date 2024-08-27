@@ -17,8 +17,8 @@ class DataStore:
         self.generate_folder()
     
     def determine_data_path(self):
-        synthesized_records_name = '_'.join((self.args['dataset_name'], str(self.args['epsilon']), str(self.args['update_iterations']), self.args['initialize_method']))
-        marginal_name = '_'.join((self.args['dataset_name'], str(self.args['epsilon']), str(self.args['update_iterations']),  self.args['initialize_method']))
+        synthesized_records_name = '_'.join((self.args['dataset_name'], str(self.args['epsilon'])))
+        marginal_name = '_'.join((self.args['dataset_name'], str(self.args['epsilon'])))
         
         self.synthesized_records_file = config_dpsyn.SYNTHESIZED_RECORDS_PATH + synthesized_records_name
         self.marginal_file = config_dpsyn.MARGINAL_PATH + marginal_name
