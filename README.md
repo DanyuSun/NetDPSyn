@@ -39,9 +39,9 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
         python3 main.py
 
 
-3. **Downstream Tasks**. You can run code from `lib_downstream` (e.g., `lib_downstream/flow_eval.py`). This will print out the evaluation results for both the raw dataset and the synthesized dataset.
+3. **Downstream Tasks**. You can run code from `lib_downstream` (e.g., `lib_downstream/ml_tasks.py`). This will print out the evaluation results for both the raw dataset and the synthesized dataset.
 
-        python flow_eval.py
+        python ml_tasks.py
 
 
 ## Citation
