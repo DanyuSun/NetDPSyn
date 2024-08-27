@@ -31,12 +31,12 @@ This repository contains code for the paper: NetDPSyn: Synthesizing Network Trac
 
 1. **Preprocess Data**. Run `lib_preprocess/preprocess_network.py`. This will generate a preprocessed pickle file in the `temp_data/processed_data` folder, along with a mapping for binning. Additionally, a trivially decoded CSV file (binning and unbinning) will be created in the `temp_data/synthesized_records` folder.
 
-        python3 preprocess_network.py
+        python preprocess_network.py
 
 
 2. **Synthesize Data**. Next, run `main.py` to generate the synthesized data. The synthesized data will be saved in the `temp_data/synthesized_records` floder.
 
-        python3 main.py
+        python main.py
 
 
 3. **Downstream Tasks**. You can run code from `lib_downstream` (e.g., `lib_downstream/ml_tasks.py`). This will print out the evaluation results for both the raw dataset and the synthesized dataset.
